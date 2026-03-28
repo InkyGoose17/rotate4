@@ -147,7 +147,7 @@ export default function ShopPage() {
 
                     {isOwned ? (
                       <button
-                        onClick={() => onEquip(skin.id)}
+                        onClick={() => handleEquip(skin.id)}
                         disabled={isEquipped}
                         className={`w-full text-xs py-1.5 rounded-lg font-semibold transition-all ${isEquipped ? 'border border-opacity-50' : 'btn-ghost border border-white/10'}`}
                         style={isEquipped ? { borderColor: skin.color, color: skin.color, background: `${skin.color}15` } : {}}
@@ -156,7 +156,7 @@ export default function ShopPage() {
                       </button>
                     ) : (
                       <button
-                        onClick={() => onBuy(skin)}
+                        onClick={() => handleBuy(skin)}
                         disabled={!!buying}
                         className="w-full text-xs py-1.5 rounded-lg font-semibold transition-all border"
                         style={{ background: `${skin.color}15`, color: skin.color, borderColor: `${skin.color}40` }}
