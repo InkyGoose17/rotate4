@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import type { Profile } from '@/types'
 
-const ADMIN_USERNAME = 'inkygoose_'
+const ADMIN_USERNAME = 'InkyGoose_'
 
 export default function AdminPanel() {
   const router = useRouter()
