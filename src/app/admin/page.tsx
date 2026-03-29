@@ -71,13 +71,15 @@ export default function AdminPanel() {
       updates[key] = parseInt(val, 10) || 0
     }
 
-    const { error } = await supabase
-      .from('profiles')
-      .update(updates)
-      .eq('id', profileId)
+    const res = await fetch('/api/admin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ profileId, updates }),
+    })
+    const result = await res.json()
 
-    if (error) {
-      showToast('Save failed: ' + error.message, false)
+    if (!res.ok) {
+      showToast('Save failed: ' + (result.error || 'Unknown error'), false)
     } else {
       showToast('Saved!', true)
       setEditing(null)
