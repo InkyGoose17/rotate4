@@ -95,8 +95,6 @@ export default function ShopPage() {
           <div className="grid grid-cols-2 gap-x-4 gap-y-1">
             <span>Competitive Win</span><span className="text-neon-amber font-semibold">+150</span>
             <span>Competitive Loss</span><span className="text-neon-amber font-semibold">+30</span>
-            <span>Casual Win</span><span className="text-neon-amber font-semibold">+75</span>
-            <span>Casual Loss</span><span className="text-neon-amber font-semibold">+15</span>
           </div>
         </div>
 
@@ -143,7 +141,6 @@ export default function ShopPage() {
                     </div>
 
                     <p className="font-semibold text-sm truncate" style={{ color: skin.color }}>{skin.name}</p>
-                    <p className="text-xs text-slate-500 mb-3 truncate">{skin.description}</p>
 
                     {isOwned ? (
                       <button
@@ -232,7 +229,7 @@ function SkinSection({ title, price, skins, owned, equipped, buying, onBuy, onEq
             >
               {/* Color swatch */}
               <div
-                className="w-full h-14 rounded-lg mb-3 flex items-center justify-center text-2xl font-black"
+                className="w-full h-14 rounded-lg mb-3 flex items-center justify-center text-4xl font-black"
                 style={{
                   background: `${skin.color}20`,
                   border: `2px solid ${skin.color}40`,
@@ -244,7 +241,6 @@ function SkinSection({ title, price, skins, owned, equipped, buying, onBuy, onEq
               </div>
 
               <p className="font-semibold text-slate-200 text-sm truncate">{skin.name}</p>
-              <p className="text-xs text-slate-500 mb-3 truncate">{skin.description}</p>
 
               {skin.is_default ? (
                 <button
