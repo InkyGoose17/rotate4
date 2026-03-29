@@ -126,6 +126,9 @@ export const COIN_REWARDS = {
   competitive_1v1: { win: 150, loss: 30 },
   competitive_3p:  { win: 175, loss: -75 },
   competitive_4p:  { win: 200, loss: -75 },
+  hosted_1v1:      { win: 50, loss: 10 },
+  hosted_3p:       { win: 60, loss: 10 },
+  hosted_4p:       { win: 75, loss: 10 },
 } as const
 
 export const ELO_CONFIG = {
