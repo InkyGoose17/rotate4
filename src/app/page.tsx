@@ -273,7 +273,7 @@ export default function LobbyPage() {
 
             {/* Host a game */}
             <div>
-              <h3 className="text-xs text-slate-500 uppercase tracking-widest mb-2">Host (No Rewards)</h3>
+              <h3 className="text-xs text-slate-500 uppercase tracking-widest mb-2">Host (Casual)</h3>
               <div className="grid grid-cols-3 gap-2">
                 <button onClick={() => createHostedGame('hosted_1v1')}
                   className="card border-white/5 hover:border-white/20 transition-all text-center py-3 group">
@@ -438,7 +438,19 @@ export default function LobbyPage() {
             )}
           </div>
         )}
-      </div>
+  
+        {/* How to Play */}
+        <div className="card border-white/5 mt-6">
+          <h3 className="text-xs text-slate-500 uppercase tracking-widest mb-3">How to Play</h3>
+          <div className="space-y-2 text-sm text-slate-400">
+            <p><span className="text-neon-cyan font-semibold">1.</span> Drop your piece into any column, like Connect 4.</p>
+            <p><span className="text-neon-cyan font-semibold">2.</span> Get <span className="text-white font-semibold">4 in a row</span> (horizontal, vertical, or diagonal) to win.</p>
+            <p><span className="text-neon-cyan font-semibold">3.</span> The twist: every <span className="text-neon-purple font-semibold">4 total moves</span>, the board rotates 90° clockwise!</p>
+            <p><span className="text-neon-cyan font-semibold">4.</span> Pieces fall with gravity after each rotation, changing the game.</p>
+            <p className="text-xs text-slate-600 mt-2">Win competitive matches to earn coins, climb the ranks, and unlock skins.</p>
+          </div>
+        </div>
+    </div>
     </div>
   )
 
