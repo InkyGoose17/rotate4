@@ -87,7 +87,7 @@ export default function GamePage() {
   useEffect(() => {
     if (!game || game.status !== 'active' || isRotating) return
 
-    setTurnTimer(30)
+    setTurnTimer(15)
     skipInProgressRef.current = false
     if (turnTimerIntervalRef.current) clearInterval(turnTimerIntervalRef.current)
 
@@ -487,14 +487,6 @@ export default function GamePage() {
     const game = gameRef.current
     const isHost = playersRef.current.find(p => p.profile_id === myProfile?.id)?.player_index === 0
     if (isHost && game) {
-      await supabase.from('games').update({ status: 'abandoned' }).eq('id', game.id)
-    }
-    router.push('/')
-  }
-
-  // \u2500\u2500 Leave game \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-  const handleLeaveGame = useCallback(async () => {
-    const profile = myProfileRef.current
     const game = gameRef.current
     const currentPlayers = playersRef.current
     if (!profile || !game) { router.push('/'); return }
@@ -699,22 +691,13 @@ export default function GamePage() {
               <div
                 className="h-full rounded-full transition-all duration-1000 ease-linear"
                 style={{
-                  width: `${(turnTimer / 30) * 100}%`,
+                  width: `${(turnTimer / 15) * 100}%`,
                   background: turnTimer <= 10 ? '#f59e0b' : '#00f5ff40',
                 }}
               />
             </div>
           </div>
         </div>
-      )}
-
-      {gameActive && (
-        <button
-          onClick={handleLeaveGame}
-          className="mt-3 text-xs text-slate-700 hover:text-slate-500 transition-colors"
-        >
-          Leave game
-        </button>
       )}
 
       {winState && (
