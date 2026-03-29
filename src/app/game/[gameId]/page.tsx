@@ -373,8 +373,29 @@ export default function GamePage() {
     const game = gameRef.current
     if (!game) return
 
-    // Hosted games ÃÂ¢ÃÂÃÂ no rewards
-    if (game.host_id || game.mode.startsWith('hosted')) return
+    // Hosted games — coins only, no ELO
+    if (game.host_id || game.mode.startsWith('hosted')) {
+      const modeKey = game.mode as keyof typeof COIN_REWARDS
+      const coins = COIN_REWARDS[modeKey] || COIN_REWARDS.hosted_1v1
+      const { data: gpRows } = await supabase
+        .from('game_players').select('*, profiles(*)').eq('game_id', gameId)
+      if (!gpRows) return
+      for (const gp of gpRows) {
+        const isWin = gp.profile_id === winnerId
+        const earned = isWin ? coins.win : coins.loss
+        await supabase.from('game_players').update({
+          coins_earned: earned,
+          placement: isWin ? 1 : 2,
+        }).eq('game_id', gameId).eq('profile_id', gp.profile_id)
+        const prof = gp.profiles as any
+        if (prof) {
+          await supabase.from('profiles').update({
+            coins: (prof.coins || 0) + earned,
+          }).eq('id', gp.profile_id)
+        }
+      }
+      return
+    }
 
     // Forfeit multiplier: 50% less coins & ELO when someone leaves
     const mult = isForfeit ? 0.5 : 1
@@ -471,6 +492,47 @@ export default function GamePage() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameId, supabase])
+
+  // ── Load friends for invite ──
+  const loadFriends = async () => {
+    if (!myProfile) return
+    const { data } = await supabase
+      .from('friendships')
+      .select('requester_id, addressee_id, requester:profiles!friendships_requester_id_fkey(*), addressee:profiles!friendships_addressee_id_fkey(*)')
+      .eq('status', 'accepted')
+      .or(`requester_id.eq.${myProfile.id},addressee_id.eq.${myProfile.id}`)
+    if (!data) return
+    const friends = data.map((f: any) =>
+      f.requester_id === myProfile.id ? f.addressee : f.requester
+    ).filter(Boolean) as Profile[]
+    setFriendsList(friends)
+    setShowInviteModal(true)
+  }
+
+  const sendGameInvite = async (friendId: string) => {
+    if (!myProfile || !game) return
+    await supabase.from('game_invites').insert({
+      game_id: gameId,
+      from_profile_id: myProfile.id,
+      to_profile_id: friendId,
+      status: 'pending',
+    })
+    // Send realtime notification
+    const channel = supabase.channel(`lobby-invites:${friendId}`)
+    await channel.send({
+      type: 'broadcast',
+      event: 'game-invite',
+      payload: {
+        gameId,
+        fromUsername: myProfile.username,
+        joinCode: game.join_code,
+        mode: game.mode,
+      },
+    })
+    supabase.removeChannel(channel)
+    setInvitedIds(prev => new Set([...prev, friendId]))
+  }
+
 
   // \u2500\u2500 Start hosted game \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
   const startGame = async () => {
@@ -570,6 +632,40 @@ export default function GamePage() {
     return (
       <div className="min-h-screen flex flex-col">
         <header className="flex items-center justify-between px-4 py-3 border-b border-white/5">
+            <button onClick={loadFriends} className="btn-ghost w-full text-sm mb-3 border-neon-cyan/30 text-neon-cyan hover:border-neon-cyan/60">
+              Invite Friends
+            </button>
+
+            {showInviteModal && (
+              <div className="w-full mb-3 p-3 rounded-lg bg-slate-800/80 border border-white/10">
+                <div className="flex justify-between items-center mb-2">
+                  <p className="text-xs text-slate-400 font-semibold uppercase">Invite Friends</p>
+                  <button onClick={() => setShowInviteModal(false)} className="text-slate-500 hover:text-white text-xs">{String.fromCharCode(10005)}</button>
+                </div>
+                {friendsList.length === 0 ? (
+                  <p className="text-xs text-slate-600">No friends found</p>
+                ) : (
+                  <div className="space-y-1 max-h-32 overflow-y-auto">
+                    {friendsList.map(f => (
+                      <div key={f.id} className="flex justify-between items-center py-1">
+                        <span className="text-sm text-slate-300">{f.username}</span>
+                        <button
+                          onClick={() => sendGameInvite(f.id)}
+                          disabled={invitedIds.has(f.id)}
+                          className={invitedIds.has(f.id)
+                            ? "text-xs px-2 py-0.5 rounded bg-green-500/20 text-green-400"
+                            : "text-xs px-2 py-0.5 rounded bg-neon-cyan/20 text-neon-cyan hover:bg-neon-cyan/30"
+                          }
+                        >
+                          {invitedIds.has(f.id) ? 'Sent' : 'Invite'}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
           <button onClick={cancelGame} className="btn-ghost text-sm">{'\u2190'} Lobby</button>
           <div className="text-center">
             <span className="text-neon-cyan text-glow-cyan font-bold text-lg">ROTATE</span>
